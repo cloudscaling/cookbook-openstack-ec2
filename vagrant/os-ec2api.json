@@ -1,0 +1,17 @@
+{
+  "name": "os-ec2api",
+  "description": "Role for EC2API.",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "override_attributes": {
+  },
+  "chef_type": "role",
+  "run_list": [
+    "role[os-ec2-api]",
+    "role[os-ec2api-metadata]",
+    "recipe[openstack-ec2api::identity_registration]"
+  ],
+  "env_run_lists": {
+  }
+}

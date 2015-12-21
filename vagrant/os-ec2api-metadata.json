@@ -1,0 +1,16 @@
+{
+  "name": "os-ec2api-metadata",
+  "description": "Role for EC2API MEtadata Service.",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "override_attributes": {
+  },
+  "chef_type": "role",
+  "run_list": [
+    "role[os-base]",
+    "recipe[openstack-ec2api::metadata]"
+  ],
+  "env_run_lists": {
+  }
+}
