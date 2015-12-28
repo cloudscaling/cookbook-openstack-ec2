@@ -65,11 +65,11 @@ Before rake deploy commands:
 ```
 "override_attributes": {
     "openstack": {
-	"endpoints": {
-	    "compute-metadata-api": {
-		"port": "8789"
-	    }
-	}
+        "endpoints": {
+            "compute-metadata-api": {
+                "port": "8789"
+            }
+        }
     }
 }
 ```
@@ -80,13 +80,13 @@ Before rake deploy commands:
 ```
 "override_attributes": {
     "openstack": {
-	"compute": {
-	    "network": {
-		"neutron": {
-		    "service_neutron_metadata_proxy" : true
-		}
-	    }
-	}
+        "compute": {
+            "network": {
+                "neutron": {
+                    "service_neutron_metadata_proxy" : true
+                }
+            }
+        }
     }
 }
 ```
