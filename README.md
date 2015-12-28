@@ -47,71 +47,66 @@ You can run this cookbook by chef-solo.
 
 To run this cookbook in openstack-chef-repo (https://github.com/openstack/openstack-chef-repo)
 
-0. Do "Initial Setup Steps" for openstack-chef-repo instruction.
+0. Do **"Initial Setup Steps"** for openstack-chef-repo instruction.
 
 Before rake deploy commands:
 
-1. Create openstack-ec2api folder in the chef-repo cookbooks (openstack-chef-repo/cookbooks/) and add all files from the cloudscaling/cookbook-openstack-ec2
+1. Create openstack-ec2api folder in the chef-repo cookbooks (openstack-chef-repo/cookbooks/) and add all files from this project
 
-2. Add ./vagrant/*.json files to the roles directory (/openstack-chef-repo/roles/) 
+2. Add *./vagrant/*.json* files to the roles directory (*/openstack-chef-repo/roles/*) 
 
-3. Add to the openstack-chef-repo/roles/os-compute-single-controller.json
-    "role[os-ec2api]" to the run list.
+3. Add "role[os-ec2api]" to the run list in the openstack-chef-repo/roles/os-compute-single-controller.json
 
 4. To configure OpenStack for EC2 API metadata service:
 
-    For Neutron
-    ---------------------------------
-	* add to the openstack-chef-repo/enviroments/vagrant-aio-neutron.json file:
-	::
-	
-	"override_attributes": {
-    	    "openstack": {
-        	"endpoints": {
-                    "compute-metadata-api": {
-	        	    "port": "8789"
-        	    }
-        	}
+**_For Neutron_**
+    
+    * add to the openstack-chef-repo/enviroments/vagrant-aio-neutron.json file:
+    '''bash
+    "override_attributes": {
+	"openstack": {
+    	    "endpoints": {
+        	"compute-metadata-api": {
+	    	    "port": "8789"
+    		}
     	    }
-    	}
+	}
+    }
+    '''
 
-    For Nova-network
-    ------------------------------
-	* add to the openstack-chef-repo/enviroments/vagrant-aio-nova.json file:
-	::
-	
-	"override_attributes": {
-	    "openstack": {
-		"compute": {
-		    "network": {
-			"neutron": {
-			    "service_neutron_metadata_proxy" : true
-			}
+**_For Nova-network_**
+
+    * add to the openstack-chef-repo/enviroments/vagrant-aio-nova.json file:
+    '''bash
+    "override_attributes": {
+	"openstack": {
+	    "compute": {
+		"network": {
+		    "neutron": {
+			"service_neutron_metadata_proxy" : true
 		    }
 		}
 	    }
 	}
+    }
 	
-	* in openstack-chef-repo/openstack-compute/templates/default/nova.conf.erb 
-	    add::
-	    
-	    [DEFAULT]
-	    metadata_port = 8789
+    * in openstack-chef-repo/openstack-compute/templates/default/nova.conf.erb add:
+    '''bash    
+    [DEFAULT]
+    metadata_port = 8789
+    '''
 
 5. Run "Rake Deploy Commands" for openstack-chef-repo instruction.
     
-    For Neutron
-    ----------- 
-    ::
+**_For Neutron_**
+'''bash
+$ chef exec rake aio_neutron    # All-in-one controller with Neutron
+'''
 
-    $ chef exec rake aio_neutron    # All-in-one controller with Neutron
-
-    For Nova-network
-    ----------------
-    ::
-    
-    $ chef exec rake aio_nova       # All-in-one controller with nova-network
-    
+**_For Nova-network_**
+'''bash
+$ chef exec rake aio_nova       # All-in-one controller with nova-network
+'''    
     
 Attributes
 ==========
