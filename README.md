@@ -2,7 +2,6 @@ Description
 ===========
 
 This cookbook installs the OpenStack EC2API service **Ec2api** as part of an OpenStack reference deployment Chef for OpenStack.
-To run this cookbook in installation of Openstack by openstack-chef-repo cookbook, please read README file in vagrant folder.
 
 Requirements
 ============
@@ -34,12 +33,86 @@ user
 
 common
 ------
-- Installs the python and ec2api and setup configuration.
+- Installs the python and ec2api. Setup configuration.
 
 identity_registration
 ---------------------
 - Registers the Ec2 API endpoint, ec2-api service and user
 
+Installation
+============
+
+You can run this cookbook by chef-solo.
+
+
+To run this cookbook in openstack-chef-repo (https://github.com/openstack/openstack-chef-repo)
+
+0. Do "Initial Setup Steps" for openstack-chef-repo instruction.
+
+Before rake deploy commands:
+
+1. Create openstack-ec2api folder in the chef-repo cookbooks (openstack-chef-repo/cookbooks/) and add all files from the cloudscaling/cookbook-openstack-ec2
+
+2. Add ./vagrant/*.json files to the roles directory (/openstack-chef-repo/roles/) 
+
+3. Add to the openstack-chef-repo/roles/os-compute-single-controller.json
+    "role[os-ec2api]" to the run list.
+
+4. To configure OpenStack for EC2 API metadata service:
+
+    For Neutron
+    ---------------------------------
+	* add to the openstack-chef-repo/enviroments/vagrant-aio-neutron.json file:
+	::
+	
+	"override_attributes": {
+    	    "openstack": {
+        	"endpoints": {
+                    "compute-metadata-api": {
+	        	    "port": "8789"
+        	    }
+        	}
+    	    }
+    	}
+
+    For Nova-network
+    ------------------------------
+	* add to the openstack-chef-repo/enviroments/vagrant-aio-nova.json file:
+	::
+	
+	"override_attributes": {
+	    "openstack": {
+		"compute": {
+		    "network": {
+			"neutron": {
+			    "service_neutron_metadata_proxy" : true
+			}
+		    }
+		}
+	    }
+	}
+	
+	* in openstack-chef-repo/openstack-compute/templates/default/nova.conf.erb 
+	    add::
+	    
+	    [DEFAULT]
+	    metadata_port = 8789
+
+5. Run "Rake Deploy Commands" for openstack-chef-repo instruction.
+    
+    For Neutron
+    ----------- 
+    ::
+
+    $ chef exec rake aio_neutron    # All-in-one controller with Neutron
+
+    For Nova-network
+    ----------------
+    ::
+    
+    $ chef exec rake aio_nova       # All-in-one controller with nova-network
+    
+    
 Attributes
 ==========
 
@@ -84,9 +157,26 @@ MQ attributes
 * 'openstack['db']['ec2api']['password']` - The password for the database.
 * 'openstack['ec2api']['service_password']` - The password for service_tenant.
 
-Testing
+Usage
 =====
 
+Download aws cli from Amazon. Create configuration file for aws cli in your home directory ~/.aws/config:
+
+    ::
+    [default]
+    aws_access_key_id = 1b013f18d5ed47ae8ed0fbb8debc036b
+    aws_secret_access_key = 9bbc6f270ffd4dfdbe0e896947f41df3
+    region = us-east-1
+
+Change the aws_access_key_id and aws_secret_acces_key above to the values appropriate for your cloud (can be obtained by "keystone ec2-credentials-list" command).
+
+Run aws cli commands using new EC2 API endpoint URL (can be obtained from keystone with the new port 8788) like this::
+
+aws --endpoint-url http://10.0.2.15:8788 ec2 describe-instances
+
+
+License
+=======
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

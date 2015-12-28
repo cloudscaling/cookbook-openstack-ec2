@@ -18,7 +18,12 @@ default['openstack']['ec2api']['debug'] = 'False'
 default['openstack']['ec2api']['log_dir'] = '/var/log/ec2api'
 
 default['openstack']['ec2api']['external_network'] = 'public'
-default['openstack']['ec2api']['vpc_support'] = 'True'
+case node['openstack']['compute']['network']['service_type']
+when 'neutron'
+    default['openstack']['ec2api']['vpc_support'] = 'True'
+when 'nova'
+    default['openstack']['ec2api']['vpc_support'] = 'False'
+end
 default['openstack']['ec2api']['ec2api_port'] = 8788
 default['openstack']['ec2api']['logging_context_file'] = "%(asctime)s.%(msecs)03d %(levelname)s %(name)s [%(request_id)s %(user_name)s %(project_name)s] %(instance)s%(message)s"
 default['openstack']['ec2api']['apipaste_file'] = "#{node['openstack']['ec2api']['conf_dir']}api-paste.ini"
