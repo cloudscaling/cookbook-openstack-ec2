@@ -30,45 +30,42 @@ end
 db_user = node['openstack']['db']['ec2api']['username']
 #db_pass = get_password 'db', 'ec2api'
 db_pass = node['openstack']['db']['ec2api']['password']
-sql_connection = db_uri_ec2api('ec2api', db_user, db_pass)
 
-identity_endpoint = internal_endpoint 'identity-internal'
-identity_admin_endpoint = admin_endpoint 'identity-admin'
-#service_pass = get_password 'service', 'openstack-ec2api'
-service_pass = node['openstack']['ec2api']['service_password']
+node.default['openstack']['ec2api']['conf_secrets']
+  .[]('database')['connection'] =
+  db_uri_ec2api('ec2api', db_user, db_pass)
 
-#ec2_auth_uri = auth_uri_transform identity_endpoint.to_s, node['openstack']['ec2api']['ec2authtoken']['auth']['version']
-#puts ec2_auth_uri
-auth_uri = auth_uri_transform identity_endpoint.to_s, node['openstack']['ec2api']['registry']['auth']['version']
-identity_uri = identity_uri_transform(identity_admin_endpoint)
+identity_endpoint = public_endpoint 'identity'
+identity_admin_endpoint = admin_endpoint 'identity'
+ec2_api_endpoint = internal_endpoint 'ec2api'
+# node.default['openstack']['ec2api']['conf_secrets']
+#   .[]('keystone_authtoken')['password'] =
+#   get_password 'service', 'openstack-block-storage'
+auth_url = auth_uri_transform(identity_endpoint.to_s, node['openstack']['api']['auth']['version'])
+keystone_ec2_tokens_url =  uri_join_paths(auth_uri_transform(identity_endpoint.to_s,
+					  node['openstack']['ec2api']['version3']), node['openstack']['ec2api']['ec2_tokens_path'])
+
+node.default['openstack']['ec2api']['conf'].tap do |conf|
+  conf['DEFAULT']['ec2_port'] = ec2_api_endpoint.port
+  conf['DEFAULT']['ec2api_listen_port'] = ec2_api_endpoint.port
+  conf['DEFAULT']['keystone_url'] = auth_url
+  conf['DEFAULT']['keystone_ec2_tokens_url'] = keystone_ec2_tokens_url
+end
 
 ec2api_user = node['openstack']['ec2api']['user']
 ec2api_group = node['openstack']['ec2api']['group']
 
-ec2api_listen_port = node['openstack']['ec2api']['ec2api_port']
-ec2api_port = node['openstack']['ec2api']['ec2api_port']
-api_paste_config = node['openstack']['ec2api']['api_paste_file']
-logging_context_format_string = "%(asctime)s.%(msecs)03d %(levelname)s %(name)s [%(request_id)s %(user_name)s %(project_name)s] %(instance)s%(message)s"
-log_dir = node['openstack']['ec2api']['log_dir']
-verbose = node['openstack']['ec2api']['verbose']
-keystone_url = auth_uri
-connection = node['openstack']['ec2api']['connection']
-vpc_support = node['openstack']['ec2api']['vpc_support']
-external_network = node['openstack']['ec2api']['external_network']
-
-admin_user = node['openstack']['ec2api']['service_username']
-admin_password = node['openstack']['ec2api']['service_password']
-admin_tenant_name = node['openstack']['ec2api']['service_tennant']
-
 mq_service_type = node['openstack']['mq']['ec2api']['service_type']
-if mq_service_type == 'rabbitmq'
-  if node['openstack']['mq']['ec2api']['rabbit']['ha']
-    rabbit_hosts = rabbit_servers
-  end
-  mq_password = get_password 'user', node['openstack']['mq']['ec2api']['rabbit']['userid']
-elsif mq_service_type == 'qpid'
-  mq_password = get_password 'user', node['openstack']['mq']['ec2api']['qpid']['username']
+if mq_service_type == 'rabbit'
+  user = node['openstack']['ec2api']['conf']['oslo_messaging_rabbit']['rabbit_userid']
+  node.default['openstack']['ec2api']['conf_secrets']
+    .[]('oslo_messaging_rabbit')['rabbit_userid'] = user
+  node.default['openstack']['ec2api']['conf_secrets']
+    .[]('oslo_messaging_rabbit')['rabbit_password'] = 
+    get_password 'user', user
 end
+
+ec2api_config = merge_config_options 'ec2api'
 
 directory node['openstack']['ec2api']['conf_dir'] do
   group ec2api_group
@@ -77,14 +74,14 @@ directory node['openstack']['ec2api']['conf_dir'] do
   action :create
 end
 
-directory node['openstack']['ec2api']['log_dir'] do
+directory node['openstack']['ec2api']['conf']['DEFAULT']['log_dir'] do
   group ec2api_group
   owner ec2api_user
   mode 00755
   action :create
 end
 
-cookbook_file node['openstack']['ec2api']['apipaste_file'] do
+cookbook_file node['openstack']['ec2api']['conf']['DEFAULT']['api_paste_config'] do
   source 'api-paste.ini'
   owner ec2api_user
   group ec2api_group
@@ -93,27 +90,13 @@ cookbook_file node['openstack']['ec2api']['apipaste_file'] do
 end
 
 template "etc/ec2api/ec2api.conf" do
-  source 'ec2api.conf.erb'
+  source 'openstack-service.conf.erb'
+  cookbook 'openstack-common'
   group ec2api_group
   owner ec2api_user
-  mode 00644
+  mode 00640
   variables(
-    ec2api_listen_port: ec2api_listen_port,
-    ec2api_port: ec2api_port,
-    api_paste_config: api_paste_config,
-    logging_context_format_string: logging_context_format_string,
-    log_dir: log_dir,
-    verbose: verbose,
-    rabbit_hosts: rabbit_hosts,
-    keystone_url: keystone_url,
-    connection: connection,
-    full_vpc_support: vpc_support,
-    external_network: external_network,
-    mq_password: mq_password,
-
-    admin_user: admin_user,
-    admin_password: admin_password,
-    admin_tenant_name: admin_tenant_name)
+    service_config: ec2api_config)
 end
 
 execute 'apt-get update' do

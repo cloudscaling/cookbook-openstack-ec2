@@ -34,7 +34,6 @@ end
 service 'ec2-api' do
   service_name 'ec2-api'
   supports status: true, restart: true
-
   action :enable
 end
 

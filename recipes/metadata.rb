@@ -26,9 +26,6 @@ class ::Chef::Recipe # rubocop:disable Documentation
   include ::Openstack
 end
 
-ec2api_user = node['openstack']['ec2api']['user']
-ec2api_group = node['openstack']['ec2api']['group']
-
 template '/etc/init/ec2-api-metadata.conf' do
     source 'metadata.conf.erb'
     notifies :start, 'service[ec2-api-metadata]', :immediately
@@ -37,7 +34,6 @@ end
 service 'ec2-api-metadata' do
   service_name 'ec2-api-metadata'
   supports status: true, restart: true
-
   action :enable
 end
 

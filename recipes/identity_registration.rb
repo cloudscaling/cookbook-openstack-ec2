@@ -22,83 +22,80 @@
 
 require 'uri'
 
-# include_recipe 'openstack-ec2api::common'
-
 class ::Chef::Recipe # rubocop:disable Documentation
   include ::Openstack
 end
 
-identity_admin_endpoint = admin_endpoint 'identity-admin'
+identity_admin_endpoint = admin_endpoint 'identity'
 
 token = get_password 'token', 'openstack_identity_bootstrap_token'
-auth_url = ::URI.decode identity_admin_endpoint.to_s
+auth_uri = ::URI.decode identity_admin_endpoint.to_s
+internal_ec2api_api_endpoint = internal_endpoint 'ec2api'
+public_ec2api_api_endpoint = public_endpoint 'ec2api'
+admin_ec2api_api_endpoint = admin_endpoint 'ec2api'
 
-api_internal_endpoint = internal_endpoint 'ec2api-api'
-api_public_endpoint = public_endpoint 'ec2api-api'
-api_admin_endpoint = admin_endpoint 'ec2api-api'
-
-#service_pass = get_password 'service', 'openstack-ec2api'
-service_pass = 'ec2api'
-service_tenant_name = node['openstack']['ec2api']['service_tenant']
-service_user = node['openstack']['ec2api']['service_username']
+#service_pass = get_password 'service', 'openstack-ec2api' 
+service_pass = 'ec2api' # add ec2api to databags
+service_tenant_name = 
+    node['openstack']['ec2api']['conf']['keystone_authtoken']['tenant_name']
+service_user = 
+    node['openstack']['ec2api']['conf']['keystone_authtoken']['username']
 service_role = node['openstack']['ec2api']['service_role']
-region = node['openstack']['ec2api']['region']
-
-# Register Image Service
-openstack_identity_register 'Register Image Service' do
-  auth_uri auth_url
-  bootstrap_token token
-  service_name 'ec2'
-  service_type 'ec2'
-  service_description 'EC2API Service'
-
-  action :create_service
-end
-
-# Register Image Endpoint
-openstack_identity_register 'Register Image Endpoint' do
-  auth_uri auth_url
-  bootstrap_token token
-  service_type 'ec2'
-  endpoint_region region
-  endpoint_adminurl api_admin_endpoint.to_s
-  endpoint_internalurl api_internal_endpoint.to_s
-  endpoint_publicurl api_public_endpoint.to_s
-
-  action :create_endpoint
-end
+service_name = 'ec2'
+service_type = 'ec2'
+region = node['openstack']['region']
 
 # Register Service Tenant
 openstack_identity_register 'Register Service Tenant' do
-  auth_uri auth_url
+  auth_uri auth_uri
   bootstrap_token token
   tenant_name service_tenant_name
   tenant_description 'Service Tenant'
-  tenant_enabled true # Not required as this is the default
-
   action :create_tenant
 end
 
+# Register EC2API Service
+openstack_identity_register 'Register EC2API Service' do
+  auth_uri auth_uri
+  bootstrap_token token
+  service_name service_name
+  service_type service_type
+  service_description 'EC2API Service'
+  endpoint_region region
+  endpoint_adminurl ::URI.decode admin_ec2api_api_endpoint.to_s
+  endpoint_internalurl ::URI.decode internal_ec2api_api_endpoint.to_s
+  endpoint_publicurl ::URI.decode public_ec2api_api_endpoint.to_s
+  action :create_service
+end
+
+# Register EC2API Endpoint
+openstack_identity_register 'Register EC2API Endpoint' do
+  auth_uri auth_uri
+  bootstrap_token token
+  service_type service_type
+  endpoint_region region
+  endpoint_adminurl ::URI.decode admin_ec2api_api_endpoint.to_s
+  endpoint_internalurl ::URI.decode internal_ec2api_api_endpoint.to_s
+  endpoint_publicurl ::URI.decode public_ec2api_api_endpoint.to_s
+  action :create_endpoint
+end
+
 # Register Service User
-openstack_identity_register "Register #{service_user} User" do
-  auth_uri auth_url
+openstack_identity_register 'Register EC2API User' do
+  auth_uri auth_uri
   bootstrap_token token
   tenant_name service_tenant_name
   user_name service_user
   user_pass service_pass
-  # String until https://review.openstack.org/#/c/29498/ merged
-  user_enabled true
-
   action :create_user
 end
 
-## Grant Service role to Service User for Service Tenant ##
+# Grant Service role to Service User for Service Tenant ##
 openstack_identity_register "Grant '#{service_role}' Role to #{service_user} User for #{service_tenant_name} Tenant" do
-  auth_uri auth_url
+  auth_uri auth_uri
   bootstrap_token token
   tenant_name service_tenant_name
   user_name service_user
   role_name service_role
-
   action :grant_role
 end
