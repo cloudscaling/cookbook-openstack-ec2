@@ -50,10 +50,12 @@ Before rake deploy commands:
 
 1. Create openstack-ec2api folder in the chef-repo cookbooks (*/openstack-chef-repo/cookbooks/*) and add all files from this project
 
-2. Add to the run list in the */openstack-chef-repo/roles/os-compute-single-controller.json*
+2. Add to the run list in the */openstack-chef-repo/roles/allinone.json*
+```
     "recipe[openstack-ec2api::ec2-api]",
     "recipe[openstack-ec2api::metadata]",
     "recipe[openstack-ec2api::identity_registration]"
+```
 
 3. To configure OpenStack for EC2 API metadata service:
 
