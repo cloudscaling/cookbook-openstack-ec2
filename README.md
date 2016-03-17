@@ -133,9 +133,15 @@ Run aws cli commands using new EC2 API endpoint URL (can be obtained from keysto
     aws --endpoint-url http://127.0.0.1:8788 ec2 describe-instances
 
 
-License
-=======
+License and Author
+==================
 
+|                      |                                                    |
+|:---------------------|:---------------------------------------------------|
+| **Author**           |  Anastasia Kravets (<Anastasia.Kravets@emc.com>)   |
+|                      |                                                    |
+| **Copyright**        |  Copyright (c) 2016, EMC Corporation.              |
+|:---------------------|:---------------------------------------------------|
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at

@@ -1,11 +1,9 @@
 # encoding: UTF-8
 #
-# Cookbook Name:: openstack-image
+# Cookbook Name:: openstack-ec2api
 # Recipe:: identity_registration
 #
-# Copyright 2013, AT&T Services, Inc.
-# Copyright 2013, Craig Tracey <craigtracey@gmail.com>
-# Copyright 2013, Opscode, Inc.
+# Copyright 2016, EMC Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +16,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
 require 'uri'
 
