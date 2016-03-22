@@ -78,7 +78,7 @@ openstack_identity_register 'Register EC2API Endpoint' do
 end
 
 # Register Service User
-openstack_identity_register 'Register EC2API User' do
+openstack_identity_register 'Register EC2API Service User' do
   auth_uri auth_uri
   bootstrap_token token
   tenant_name service_tenant_name
@@ -88,7 +88,7 @@ openstack_identity_register 'Register EC2API User' do
 end
 
 # Grant Service role to Service User for Service Tenant ##
-openstack_identity_register "Grant '#{service_role}' Role to #{service_user} User for #{service_tenant_name} Tenant" do
+openstack_identity_register "Grant admin Role to EC2API Service User for EC2API Service Tenant" do
   auth_uri auth_uri
   bootstrap_token token
   tenant_name service_tenant_name

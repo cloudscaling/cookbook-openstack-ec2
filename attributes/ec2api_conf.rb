@@ -1,7 +1,7 @@
 default['openstack']['ec2api']['conf'].tap do |conf|
   # [DEFAULT] section
   conf['DEFAULT']['verbose'] = true
-  if node["openstack"]["ec2api"]["syslog"]["use"]
+  if node['openstack']['ec2api']['syslog']['use']
     conf['DEFAULT']['log_config'] = '/etc/openstack/logging.conf'
   else
     conf['DEFAULT']['log_dir'] = '/var/log/ec2api'
@@ -16,7 +16,7 @@ default['openstack']['ec2api']['conf'].tap do |conf|
   conf['DEFAULT']['full_vpc_support'] = true
   conf['DEFAULT']['external_network'] = 'public'
   conf['DEFAULT']['logging_context_format_string'] =
-    "%(asctime)s.%(msecs)03d %(levelname)s %(name)s [%(request_id)s %(user_name)s %(project_name)s] %(instance)s%(message)s"
+    '%(asctime)s.%(msecs)03d %(levelname)s %(name)s [%(request_id)s %(user_name)s %(project_name)s] %(instance)s%(message)s'
   conf['DEFAULT']['api_paste_config'] = '/etc/ec2api/api-paste.ini'
   conf['DEFAULT']['cinder_service_type'] = 'volumev2'
 

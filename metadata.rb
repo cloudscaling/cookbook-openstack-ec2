@@ -19,6 +19,5 @@ end
 depends 'apt', '~> 2.8'
 depends 'openstack-common', '>= 13.0.0'
 depends 'openstack-identity', '>= 13.0.0'
-depends 'openstack-image', '>= 13.0.0'
 depends 'selinux', '~> 0.9.0'
 depends 'python', '~> 1.4.6'

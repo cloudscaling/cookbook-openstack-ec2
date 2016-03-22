@@ -19,7 +19,7 @@
 
 default['openstack']['ec2api']['user'] = 'ec2api'
 default['openstack']['ec2api']['group'] = 'ec2api'
-default['openstack']['ec2api']['conf_dir'] = '/etc/ec2api/'
+default['openstack']['ec2api']['conf_dir'] = '/etc/ec2api'
 default['openstack']['ec2api']['service_role'] = 'admin'
 default['openstack']['ec2api']['version3'] = 'v3.0'
 default['openstack']['ec2api']['ec2_tokens_path'] = 'ec2tokens'
@@ -28,6 +28,10 @@ default['openstack']['ec2api']['ec2_tokens_path'] = 'ec2tokens'
 default['openstack']['ec2api']['syslog']['use'] = false
 default['openstack']['ec2api']['syslog']['facility'] = 'LOG_LOCAL2'
 default['openstack']['ec2api']['syslog']['config_facility'] = 'local2'
+
+# packages
+default['openstack']['ec2api']['packages'] = %w(libxml2-dev libxslt-dev python-dev)
+default['openstack']['ec2api']['package_overrides'] = "-o Dpkg::Options::='--force-confold' -o Dpkg::Options::='--force-confdef'"
 
 # ******************** OpenStack EC2API Endpoints ******************************
 

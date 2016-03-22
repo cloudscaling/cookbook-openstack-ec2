@@ -20,6 +20,7 @@
 require 'uri'
 
 include_recipe 'openstack-ec2api::user'
+# include_recipe 'python::pip' 
 
 class ::Chef::Recipe # rubocop:disable Documentation
   include ::Openstack
@@ -43,9 +44,11 @@ ec2_api_endpoint = internal_endpoint 'ec2api'
 # node.default['openstack']['ec2api']['conf_secrets']
 #   .[]('keystone_authtoken')['password'] =
 #   get_password 'service', 'openstack-block-storage'
-auth_url = auth_uri_transform(identity_endpoint.to_s, node['openstack']['api']['auth']['version'])
+auth_url = auth_uri_transform(identity_endpoint.to_s, 
+			      node['openstack']['api']['auth']['version'])
 keystone_ec2_tokens_url =  uri_join_paths(auth_uri_transform(identity_endpoint.to_s,
-					  node['openstack']['ec2api']['version3']), node['openstack']['ec2api']['ec2_tokens_path'])
+					  node['openstack']['ec2api']['version3']), 
+					  node['openstack']['ec2api']['ec2_tokens_path'])
 
 node.default['openstack']['ec2api']['conf'].tap do |conf|
   conf['DEFAULT']['ec2_port'] = ec2_api_endpoint.port
@@ -69,13 +72,6 @@ end
 
 ec2api_config = merge_config_options 'ec2api'
 
-directory node['openstack']['ec2api']['conf_dir'] do
-  group ec2api_group
-  owner ec2api_user
-  mode 00700
-  action :create
-end
-
 directory node['openstack']['ec2api']['conf']['DEFAULT']['log_dir'] do
   group ec2api_group
   owner ec2api_user
@@ -83,15 +79,22 @@ directory node['openstack']['ec2api']['conf']['DEFAULT']['log_dir'] do
   action :create
 end
 
-cookbook_file node['openstack']['ec2api']['conf']['DEFAULT']['api_paste_config'] do
-  source 'api-paste.ini'
+directory node['openstack']['ec2api']['conf_dir'] do
+  group ec2api_group
+  owner ec2api_user
+  mode 00750
+  action :create
+end
+
+template node['openstack']['ec2api']['conf']['DEFAULT']['api_paste_config'] do
+  source 'api-paste.ini.erb'
   owner ec2api_user
   group ec2api_group
   mode 00644
   action :create
 end
 
-template "etc/ec2api/ec2api.conf" do
+template '/etc/ec2api/ec2api.conf' do
   source 'openstack-service.conf.erb'
   cookbook 'openstack-common'
   group ec2api_group
@@ -101,17 +104,22 @@ template "etc/ec2api/ec2api.conf" do
     service_config: ec2api_config)
 end
 
-execute 'apt-get update' do
-end
-
-execute 'apt-get install -fqy libxml2-dev libxslt-dev python-dev' do
+node['openstack']['ec2api']['packages'].each do |pkg|
+  package pkg do
+    node['openstack']['ec2api']['package_overrides']
+    action :upgrade
+  end
 end
 
 execute 'apt-get install -fqy python-pip' do
 end
 
-execute 'pip install ec2-api --upgrade' do    
+execute 'pip install ec2-api --upgrade' do
 end
+
+# python_pip 'ec2-api' do
+#  action :upgrade
+# end
 
 openstack_common_database 'ec2api' do
   service 'ec2api' # name_attribute
