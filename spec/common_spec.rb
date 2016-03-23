@@ -62,7 +62,7 @@ describe 'openstack-ec2api::common' do
 
     describe 'api-paste.ini' do
       let(:file) { chef_run.template('/etc/ec2api/api-paste.ini') }
-    
+
       it 'should create the api-paste template' do
         expect(chef_run).to create_template(file.name).with(
           user: 'ec2api',
@@ -141,9 +141,8 @@ describe 'openstack-ec2api::common' do
 
     describe 'expect upgrades ec2api package' do
 
-
       it 'installs python-pip' do
-        expect(chef_run).to run_execute('apt-get install -fqy python-pip')
+        expect(chef_run).to upgrade_package('python-pip')
       end
 
       it 'installs/upgrades ec2api' do
@@ -159,7 +158,7 @@ describe 'openstack-ec2api::common' do
       expect(chef_run).to create_openstack_common_database('ec2api')
         .with(user: 'ec2api', pass: 'ec2api')
     end
-    
+
     describe 'db_sync' do
       let(:cmd) { 'ec2-api-manage db_sync' }
 

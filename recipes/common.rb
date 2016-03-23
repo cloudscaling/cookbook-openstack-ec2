@@ -111,7 +111,8 @@ node['openstack']['ec2api']['packages'].each do |pkg|
   end
 end
 
-execute 'apt-get install -fqy python-pip' do
+package 'python-pip' do
+  action :upgrade
 end
 
 execute 'pip install ec2-api --upgrade' do
