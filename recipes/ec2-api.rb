@@ -35,4 +35,3 @@ service 'ec2-api' do
   supports status: true, restart: true
   action :enable
 end
-

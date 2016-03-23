@@ -35,4 +35,3 @@ service 'ec2-api-metadata' do
   supports status: true, restart: true
   action :enable
 end
-

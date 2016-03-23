@@ -30,7 +30,7 @@ default['openstack']['ec2api']['syslog']['facility'] = 'LOG_LOCAL2'
 default['openstack']['ec2api']['syslog']['config_facility'] = 'local2'
 
 # packages
-default['openstack']['ec2api']['packages'] = %w(libxml2-dev libxslt-dev python-dev)
+default['openstack']['ec2api']['packages'] = %w(libxml2-dev libxslt1-dev python-dev)
 default['openstack']['ec2api']['package_overrides'] = "-o Dpkg::Options::='--force-confold' -o Dpkg::Options::='--force-confdef'"
 
 # ******************** OpenStack EC2API Endpoints ******************************

@@ -32,7 +32,6 @@ default['openstack']['db']['ec2api']['migrate'] = true
 default['openstack']['mq']['ec2api']['service_type'] = node['openstack']['mq']['service_type']
 default['openstack']['mq']['ec2api']['rabbit']['userid'] = 'admin'
 
-
 #TODO: add password to databags
 default['openstack']['db']['ec2api']['password'] = 'ec2api'
 default['openstack']['ec2api']['service_password'] = 'ec2api'

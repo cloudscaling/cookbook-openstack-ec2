@@ -54,7 +54,7 @@ Before rake deploy commands:
 ```
     "recipe[openstack-ec2api::ec2-api]",
     "recipe[openstack-ec2api::metadata]",
-    "recipe[openstack-ec2api::identity_registration]"
+    "recipe[openstack-ec2api::identity_registration]",
 ```
 
 3. To configure OpenStack for EC2 API metadata service:
