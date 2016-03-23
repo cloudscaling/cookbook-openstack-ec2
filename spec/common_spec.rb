@@ -131,7 +131,7 @@ describe 'openstack-ec2api::common' do
       end
 
       it 'installs libxslt-dev packages by default' do
-        expect(chef_run).to upgrade_package 'libxslt-dev'
+        expect(chef_run).to upgrade_package 'libxslt1-dev'
       end
 
       it 'installs python-dev packages by default' do
